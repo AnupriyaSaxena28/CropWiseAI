@@ -15,6 +15,7 @@
     "date-fns": "^3.6.0",
     "firebase": "^10.12.4",
     "firebase-admin": "^12.3.1",
+    "framer-motion": "^12.42.0",
     "lucide-react": "^0.414.0",
     "neo4j-driver": "^6.1.0",
     "next": "14.2.5",

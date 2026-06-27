@@ -8,6 +8,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Leaf, Volume2, Loader2, Square } from "lucide-react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import DiagnosisCard from "./DiagnosisCard";
 import type { ChatMessage, LanguageCode } from "@/app/chat/types";
@@ -104,7 +105,12 @@ export default function MessageBubble({ message, language = "hi" }: MessageBubbl
   // ── User message ─────────────────────────────────────────────
   if (isUser) {
     return (
-      <div className="flex justify-end px-4 md:px-6 group">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 200, damping: 20 }}
+        className="flex justify-end px-4 md:px-6 group"
+      >
         <div className="max-w-[72%] flex flex-col items-end gap-1">
           {/* Image attachment preview */}
           {message.imagePreviewUrl && (
@@ -123,13 +129,18 @@ export default function MessageBubble({ message, language = "hi" }: MessageBubbl
             {formatTime(message.createdAt)}
           </span>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   // ── AI model message ─────────────────────────────────────────
   return (
-    <div className="flex items-start gap-3 px-4 md:px-6 group">
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.9, y: 10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 200, damping: 20 }}
+      className="flex items-start gap-3 px-4 md:px-6 group"
+    >
       {/* Avatar */}
       <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#182419] border border-[#2ea82e]/30 flex items-center justify-center mt-0.5">
         <Leaf className="w-4 h-4 text-[#4dc24d]" strokeWidth={2} />
@@ -183,6 +194,6 @@ export default function MessageBubble({ message, language = "hi" }: MessageBubbl
           {formatTime(message.createdAt)}
         </span>
       </div>
-    </div>
+    </motion.div>
   );
 }

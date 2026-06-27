@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/firebase/auth-context";
 import AuthGuard from "@/components/auth/AuthGuard";
+import PageTransition from "./PageTransition";
 import Sidebar, { MobileMenuButton } from "./Sidebar";
 import { cn, timeAgo } from "@/lib/utils";
 import { useI18n } from "@/lib/i18n/LanguageProvider";
@@ -257,7 +258,9 @@ export default function AppShell({ children }: AppShellProps) {
           </header>
 
           <main className="p-4 md:p-6 lg:p-8 min-h-[calc(100dvh-4rem)]">
-            {children ?? null}
+            <PageTransition>
+              {children ?? null}
+            </PageTransition>
           </main>
         </div>
       </div>

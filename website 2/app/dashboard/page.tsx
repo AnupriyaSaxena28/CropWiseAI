@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
+import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, type TooltipProps } from "recharts";
 import { MapPin, Droplets, Wind, TrendingUp, CloudRain, ClipboardList, MessageSquare, ScanSearch, Store, BrainCircuit, Loader2, RefreshCw, Activity, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -66,6 +67,22 @@ const CHART_DATA = [
   { day:"Day 30", "Rainfall (mm)":15, "Moisture Content (%)":65 },
 ];
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, y: 0,
+    transition: { type: "spring", stiffness: 300, damping: 24 }
+  }
+};
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const { t } = useI18n();
@@ -106,14 +123,14 @@ export default function DashboardPage() {
 
   return (
     <AppShell>
-      <div className="max-w-6xl mx-auto space-y-5 animate-fade-in">
-        <div>
+      <motion.div className="max-w-6xl mx-auto space-y-5" variants={containerVariants} initial="hidden" animate="visible">
+        <motion.div variants={itemVariants}>
           <h1 className="text-xl font-bold text-[#e8f5e9]">{t(greeting)}, {displayName}</h1>
           <p className="text-xs text-[#5a7460] mt-0.5">{new Date().toLocaleDateString("en-IN",{weekday:"long",year:"numeric",month:"long",day:"numeric"})}</p>
-        </div>
+        </motion.div>
 
         {/* Weather + AI Card */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
+        <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5">
           <div className="rounded-xl bg-[#111d16] border border-[#2a3d2c] px-6 py-5">
             {(loadingW || locationLoading) ? (
               <div className="flex items-center gap-3 h-28"><Loader2 className="w-5 h-5 text-[#4dc24d] animate-spin" /><p className="text-sm text-[#5a7460]">{locationLoading ? t("Detecting your location...") : t("Fetching live weather...")}</p></div>
@@ -144,11 +161,11 @@ export default function DashboardPage() {
             </p>
             <Link href="/weather" className="flex items-center justify-center gap-2 py-2 rounded-lg border border-white/20 text-white text-xs font-medium hover:bg-white/10 transition-colors">{t("View Detailed Analysis")}</Link>
           </div>
-        </div>
+        </motion.div>
 
         {/* Stat cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="rounded-xl bg-[#111d16] border border-[#2a3d2c] p-4">
+        <motion.div variants={itemVariants} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <motion.div whileHover={{ scale: 1.02, y: -4 }} className="rounded-xl bg-[#111d16] border border-[#2a3d2c] p-4">
             <span className="text-[9px] font-bold uppercase text-amber-400 bg-amber-900/30 px-1.5 py-0.5 rounded">{t("Wheat MSP")}</span>
             <p className="text-[10px] text-[#5a7460] uppercase tracking-wider mt-2 mb-1">{t("Current Market Price")}</p>
             {loadingP ? <div className="shimmer h-7 w-24 rounded" /> : (
@@ -159,34 +176,36 @@ export default function DashboardPage() {
                 </p>
               </>
             )}
-          </div>
-          <div className="rounded-xl bg-[#111d16] border border-[#2a3d2c] p-4">
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.02, y: -4 }} className="rounded-xl bg-[#111d16] border border-[#2a3d2c] p-4">
             <p className="text-[10px] text-[#5a7460] uppercase tracking-wider mb-1">{t("Last 24h Rainfall")}</p>
             <p className="text-2xl font-bold text-[#e8f5e9]">{weather ? `${weather.precipitation}mm` : "—"}</p>
             {weather && <div className="flex gap-1 mt-2">{(weather?.forecast ?? []).slice(0,5).map((d: import('@/types').WeatherForecastDay, i: number)=>(<div key={i} className="flex-1 h-8 bg-[#1e2d20] rounded-sm overflow-hidden flex items-end"><div className="w-full bg-[#2ea82e]/60 rounded-sm" style={{height:`${d.precipitationChance}%`}}/></div>))}</div>}
-          </div>
-          <div className="rounded-xl bg-[#111d16] border border-[#2a3d2c] p-4">
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.02, y: -4 }} className="rounded-xl bg-[#111d16] border border-[#2a3d2c] p-4">
             <p className="text-[10px] text-[#5a7460] uppercase tracking-wider mb-1">{t("Pest Risk Alert")}</p>
             <p className="text-2xl font-bold text-[#4dc24d]">{t("Low Risk")}</p>
             <p className="text-xs text-[#5a7460] mt-1 flex items-center gap-1"><RefreshCw className="w-3 h-3"/>{t("Scanned")} {activities.filter((a: import('@/lib/firebase/activity-log').ActivityLogEntry)=>a.type==="pest_diagnosis").length > 0 ? t("recently") : t("never")}</p>
-          </div>
-          <div className="rounded-xl bg-[#111d16] border border-[#2a3d2c] p-4">
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.02, y: -4 }} className="rounded-xl bg-[#111d16] border border-[#2a3d2c] p-4">
             <p className="text-[10px] text-[#5a7460] uppercase tracking-wider mb-1">{t("Soil Moisture")}</p>
             <p className="text-2xl font-bold text-[#e8f5e9]">{weather ? `${weather.soilMoisture}%` : "—"}</p>
             <div className="mt-2 h-1.5 w-full rounded-full bg-[#1e2d20] overflow-hidden"><div className="h-full rounded-full bg-[#2ea82e]" style={{width: `${weather?.soilMoisture ?? 0}%`}}/></div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Quick actions + Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5">
+        <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-5">
           <div className="rounded-xl bg-[#111d16] border border-[#2a3d2c] p-5">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-[#5a7460] mb-4">{t("Quick Actions")}</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {QUICK_ACTIONS.map(({href,icon:Icon,label,bg,ic})=>(
-                <Link key={href} href={href} className={cn("flex flex-col items-center gap-2 p-4 rounded-xl border transition-all hover:-translate-y-0.5",bg)}>
-                  <div className="w-10 h-10 rounded-xl bg-[#0b1410]/40 flex items-center justify-center"><Icon className={cn("w-5 h-5",ic)} strokeWidth={2}/></div>
-                  <span className="text-xs font-medium text-[#94a896]">{t(label)}</span>
-                </Link>
+                <motion.div key={href} whileHover={{ scale: 1.05, y: -4 }} whileTap={{ scale: 0.95 }}>
+                  <Link href={href} className={cn("flex flex-col items-center gap-2 p-4 rounded-xl border transition-all",bg)}>
+                    <div className="w-10 h-10 rounded-xl bg-[#0b1410]/40 flex items-center justify-center"><Icon className={cn("w-5 h-5",ic)} strokeWidth={2}/></div>
+                    <span className="text-xs font-medium text-[#94a896]">{t(label)}</span>
+                  </Link>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -217,10 +236,10 @@ export default function DashboardPage() {
             )}
             <Link href="/activity-log" className="block mt-3 text-xs font-medium text-[#4dc24d] hover:text-[#82d882] text-center">{t("View All Activity")}</Link>
           </div>
-        </div>
+        </motion.div>
 
         {/* Chart */}
-        <div className="rounded-xl bg-[#111d16] border border-[#2a3d2c] p-5">
+        <motion.div variants={itemVariants} className="rounded-xl bg-[#111d16] border border-[#2a3d2c] p-5">
           <div className="flex items-start justify-between mb-5">
             <div><h2 className="text-sm font-semibold text-[#e8f5e9]">{t("Moisture & Rainfall Analysis")}</h2><p className="text-xs text-[#5a7460] mt-0.5">{t("Historical data for the last 30 days")}</p></div>
             <div className="flex rounded-lg overflow-hidden border border-[#2a3d2c]">
@@ -245,8 +264,8 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-sm bg-[#94a3b8]"/><span className="text-xs text-[#5a7460]">Rainfall (mm)</span></div>
             <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-sm bg-[#2ea82e]"/><span className="text-xs text-[#5a7460]">Moisture Content (%)</span></div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </AppShell>
   );
 }
