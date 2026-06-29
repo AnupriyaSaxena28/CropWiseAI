@@ -133,7 +133,7 @@ function ForecastCard({ day, isActive, onClick }: ForecastCardProps) {
 
 // ─── Climate Resilience Banner ────────────────────────────────────────────────
 function ClimateResilienceBanner({ weather }: { weather: ExtendedWeatherData }) {
-  const { language } = useI18n();
+  const { lang } = useI18n();
   const [alertText, setAlertText] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -163,7 +163,7 @@ function ClimateResilienceBanner({ weather }: { weather: ExtendedWeatherData }) 
         const res = await fetch("/api/gemini", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mode: "chat", prompt, language })
+          body: JSON.stringify({ mode: "chat", prompt, language: lang })
         });
         const data = await res.json();
         if (data.success && data.text) {
@@ -178,7 +178,7 @@ function ClimateResilienceBanner({ weather }: { weather: ExtendedWeatherData }) 
       }
     };
     fetchAlert();
-  }, [threat, language]);
+  }, [threat, lang]);
 
   if (!threat) return null;
 
