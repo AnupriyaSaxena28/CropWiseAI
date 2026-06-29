@@ -1,0 +1,12 @@
+# Backend (Maven)
+backend/target/
+# Android / Gradle
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+# Misc
+*.log
+.DS_Store
+backend/.env
