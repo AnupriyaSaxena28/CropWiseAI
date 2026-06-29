@@ -1,0 +1,51 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: cropwise-backend
+  # ── Dev database: in-memory H2. Swap to Postgres via env for production. ──
+  datasource:
+    url: ${DB_URL:jdbc:h2:mem:cropwise;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD:}
+    driver-class-name: ${DB_DRIVER:org.h2.Driver}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# ── App configuration / external API keys (placeholders + fallbacks) ──
+cropwise:
+  jwt:
+    # Override in production with a long random secret (>= 32 chars).
+    secret: ${JWT_SECRET:cropwise-dev-secret-change-me-please-0123456789abcdef}
+    expiration-ms: ${JWT_EXPIRATION_MS:604800000}   # 7 days
+  cors:
+    allowed-origins: ${CORS_ORIGINS:*}
+  gemini:
+    # Real keys live in app/backend/.env (git-ignored). Set via env var to enable.
+    api-key: ${GEMINI_API_KEY:}
+    model: ${GEMINI_MODEL:gemini-2.5-flash}
+    base-url: https://generativelanguage.googleapis.com/v1beta
+  market:
+    # Public data.gov.in sample key — works out of the box for development.
+    api-key: ${MARKET_API_KEY:579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b}
+    resource-id: 9ef84268-d588-465a-a308-a864a43d0070
+  sarvam:
+    api-key: ${SARVAM_API_KEY:}
+  neo4j:
+    uri: ${NEO4J_URI:}
+    username: ${NEO4J_USERNAME:neo4j}
+    password: ${NEO4J_PASSWORD:password}
+
+logging:
+  level:
+    com.cropwise: INFO
