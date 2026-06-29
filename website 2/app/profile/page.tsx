@@ -381,7 +381,7 @@ export default function ProfilePage() {
                       <Map className="w-3 h-3 flex-shrink-0" />
                       {lat && lng
                         ? `${parseFloat(lat).toFixed(4)}°N, ${parseFloat(lng).toFixed(4)}°E`
-                        : <span className="text-[#3d4d3e]">Click &quot;Use GPS&quot;</span>
+                        : <span className="text-[#3d4d3e]">Click "Use GPS"</span>
                       }
                     </div>
                   </div>
