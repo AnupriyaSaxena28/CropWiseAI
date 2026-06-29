@@ -118,7 +118,7 @@ function EmptyState({ onSuggest }: { onSuggest: (text: string) => void }) {
       </div>
       <h2 className="text-xl font-bold text-[#e8f5e9] mb-2">Ask CropWise AI</h2>
       <p className="text-sm text-[#5a7460] max-w-sm leading-relaxed mb-6">
-        Get personalised advice based on your farm, live weather, and today's mandi prices.
+        Get personalised advice based on your farm, live weather, and today&apos;s mandi prices.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-lg">
         {SUGGESTIONS.map((s) => (

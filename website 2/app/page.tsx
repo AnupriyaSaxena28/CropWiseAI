@@ -32,7 +32,7 @@ export default function RootPage() {
 
       {/* Quote */}
       <p className="text-cropwise-green italic opacity-90 text-lg md:text-xl font-serif">
-        "Every healthy harvest begins with the right decision."
+        &quot;Every healthy harvest begins with the right decision.&quot;
       </p>
     </div>
   );
