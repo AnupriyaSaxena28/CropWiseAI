@@ -1,0 +1,96 @@
+# Render Blueprint for CropWise AI
+# Deploys: Postgres DB + Spring Boot backend (Docker) + Next.js website (Node).
+# Secrets marked `sync: false` must be filled in the Render dashboard after the
+# first sync (Render never reads them from git). Docs: https://render.com/docs/blueprint-spec
+
+databases:
+  - name: cropwise-db
+    plan: free
+    databaseName: cropwise
+    user: cropwise
+
+services:
+  # ─────────────────────────── Spring Boot backend (API) ───────────────────────────
+  - type: web
+    name: cropwise-backend
+    runtime: docker
+    plan: free
+    dockerfilePath: ./app/backend/Dockerfile
+    dockerContext: ./app/backend
+    healthCheckPath: /api/schemes
+    envVars:
+      - key: DB_DRIVER
+        value: org.postgresql.Driver
+      - key: DB_USERNAME
+        fromDatabase:
+          name: cropwise-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: cropwise-db
+          property: password
+      # Paste the DB's "Internal Database URL" as a JDBC string, e.g.
+      # jdbc:postgresql://<internal-host>/cropwise
+      - key: DB_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true          # Render generates a strong random secret
+      - key: CORS_ORIGINS
+        sync: false                  # set to your website URL once it's live
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: MARKET_API_KEY
+        sync: false
+      - key: SARVAM_API_KEY
+        sync: false
+      - key: NEO4J_URI
+        sync: false
+      - key: NEO4J_USERNAME
+        sync: false
+      - key: NEO4J_PASSWORD
+        sync: false
+
+  # ─────────────────────────── Next.js website ───────────────────────────
+  - type: web
+    name: cropwise-web
+    runtime: node
+    plan: free
+    rootDir: "website 2"
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.1
+      # Firebase client (public) config
+      - key: NEXT_PUBLIC_FIREBASE_API_KEY
+        sync: false
+      - key: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+        sync: false
+      - key: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+        sync: false
+      - key: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+        sync: false
+      - key: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+        sync: false
+      - key: NEXT_PUBLIC_FIREBASE_APP_ID
+        sync: false
+      # Firebase Admin (server-only)
+      - key: FIREBASE_ADMIN_PROJECT_ID
+        sync: false
+      - key: FIREBASE_ADMIN_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_ADMIN_PRIVATE_KEY
+        sync: false
+      # Server-side API keys used by the website's own /api routes
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: MARKET_API_KEY
+        sync: false
+      - key: SARVAM_API_KEY
+        sync: false
+      - key: NEO4J_URI
+        sync: false
+      - key: NEO4J_USER
+        sync: false
+      - key: NEO4J_PASSWORD
+        sync: false
