@@ -40,11 +40,25 @@ export interface ExtendedWeatherData extends WeatherData {
   hourlyTime:          string[]; // 24h time labels
 }
 
+// ── In-memory cache to avoid Open-Meteo rate limits (HTTP 429) ────────────────
+// Free Open-Meteo throttles by IP; on a shared host we must not call it on every
+// request. Cache per ~city (rounded lat/lng) and reuse for CACHE_TTL_MS.
+const CACHE_TTL_MS = 20 * 60 * 1000; // 20 minutes
+const weatherCache = new Map<string, { data: ExtendedWeatherData; ts: number }>();
+const cacheKeyFor = (lat: number, lng: number) => `${lat.toFixed(2)},${lng.toFixed(2)}`;
+
 export async function fetchWeatherData(
   lat: number,
   lng: number,
   locationName: string
 ): Promise<ExtendedWeatherData> {
+  // Serve a fresh cached result if we have one.
+  const key = cacheKeyFor(lat, lng);
+  const cached = weatherCache.get(key);
+  if (cached && Date.now() - cached.ts < CACHE_TTL_MS) {
+    return { ...cached.data, location: locationName };
+  }
+
   const url = new URL("https://api.open-meteo.com/v1/forecast");
   url.searchParams.set("latitude",  String(lat));
   url.searchParams.set("longitude", String(lng));
@@ -85,8 +99,14 @@ export async function fetchWeatherData(
   url.searchParams.set("timezone",     "Asia/Kolkata");
   url.searchParams.set("forecast_days","7");
 
-  const res = await fetch(url.toString());
-  if (!res.ok) throw new Error(`Weather API error: ${res.status}`);
+  // Cache at the Next data layer for 30 min too (belt and suspenders).
+  const res = await fetch(url.toString(), { next: { revalidate: 1800 } });
+  if (!res.ok) {
+    // On a rate-limit (429) or transient error, serve stale cache if we have any
+    // so the UI keeps working instead of erroring out.
+    if (cached) return { ...cached.data, location: locationName };
+    throw new Error(`Weather API error: ${res.status}`);
+  }
   const data = await res.json();
 
   const cur   = data.current;
@@ -135,7 +155,7 @@ export async function fetchWeatherData(
     return d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
   });
 
-  return {
+  const result: ExtendedWeatherData = {
     // Standard WeatherData fields
     location:      locationName,
     temperature:   Math.round(cur.temperature_2m       as number),
@@ -160,6 +180,9 @@ export async function fetchWeatherData(
     hourlyRain:  hourlyRain.length ? hourlyRain : Array(24).fill(10),
     hourlyTime:  hourlyTime.length ? hourlyTime : Array(24).fill("--"),
   };
+
+  weatherCache.set(key, { data: result, ts: Date.now() });
+  return result;
 }
 
 // ─── Indian farming region coordinates ───────────────────────────────────────
